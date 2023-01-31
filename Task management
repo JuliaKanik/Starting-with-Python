@@ -1,0 +1,140 @@
+# import libraries
+from datetime import date
+
+
+# this is a program for a small business that can help it to manage tasks assigned to each member of the team.
+# for this part the following resource was very helpful https://stackoverflow.com/questions/73121319/login-from-txt-file-in-python
+
+details = []
+with open("user.txt", "r") as f:
+    for line in f.readlines():
+        user, pwd = line.split(sep=', ')
+        details.append((user.strip(), pwd.strip()))
+
+# the user should be prompted to enter a username and password.
+login = input('Please enter your login: \n')
+password = input('Please enter you password: \n')
+
+
+while (login, password) not in details:
+    print("\nIncorrect username or password.", "Please try again.\n", sep='\n') 
+    login = input('Please enter your login: \n')
+    password = input('Please enter you password: \n')
+if (login, password) in details:
+    print('You\'re logged in!')
+    
+while True:
+    # the admin user is provided with a new menu option that allows them to display statistics.
+    if login == 'admin':
+
+        menu = input('''Select one of the following Options below:
+r - Registering a user
+a - Adding a task
+va - View all tasks
+vm - view my task
+vs - view statistics
+e - Exit
+: ''').lower()
+
+    else:
+    # presenting the menu to the user and 
+    # making sure that the user input is coneverted to lower case.
+        menu = input('''Select one of the following Options below:
+r - Registering a user
+a - Adding a task
+va - View all tasks
+vm - view my task
+e - Exit
+: ''').lower()
+
+    # user chooses ‘r’ to register a user.
+    if menu == 'r':
+        # only the user with the username ‘admin’ is allowed to register users.
+        if login == 'admin': 
+            new_user = input('Please provide a new username:\n')
+            new_pass = input('Please provide a new password:\n')
+            confirm_pass = input('Please confirm the password:\n')
+            if new_pass == confirm_pass:
+                file = open('user.txt', 'a')
+                file.write(new_user)
+                file.write(', ')
+                file.write(new_pass)
+                file.write('\n')
+                file.close()
+                print('New user added.\n')
+            else:
+                print('Passwords do NOT match.')
+                new_pass = input('Please provide a new password:\n')
+                confirm_pass = input('Please confirm your password:\n')
+        else:
+            print('Sorry. You don\'t have the permission to add new users.\n')
+
+    # user chooses ‘a’ to add a task.
+    elif menu == 'a':
+    
+        task_assign = input('To whom you want the task to be assigned to?\n')
+        task_title = input('Provide a title of a task.\n')
+        description = input('Please a description of the task.\n')
+        deadline = input('Type the due date of the task.\n')
+        is_complete = 'No'
+
+        today = date.today()
+
+        task_file = open('tasks.txt', 'a')
+        task_file.write(f'{task_assign}, {task_title}, {description}, {deadline}, {today}, {is_complete}')
+        task_file.close()
+
+        print('Task added successfully.')
+    
+    # user chooses ‘va’ to view all tasks.
+    elif menu == 'va':
+
+        with open("tasks.txt", "r") as f:
+                for line in f.readlines():
+                    new_line = line.split(', ')
+                    print('─' * 40  +'\n')
+                    print(('Task: ' +'\t' + new_line[1]).expandtabs(20))
+                    print(('Assigned to: ' + '\t' + new_line[0]).expandtabs(20))
+                    print(('Date assigned: ' +'\t' + new_line[4]).expandtabs(20))
+                    print(('Due date: ' +'\t' + new_line[3]).expandtabs(20))
+                    print(('Taks Complete? ' +'\t' + new_line[5]).expandtabs(20))
+                    print(('Task description: ' +'\n' + '  ' + new_line[2]).expandtabs(5))
+                    print('─' * 40   +'\n')
+
+    # user chooses ‘vm’ to view the tasks that are assigned to them.    
+    elif menu == 'vm':
+            with open("tasks.txt", "r") as f:
+                for line in f.readlines():
+                    if login in line:
+                    # info about adding colors I found here -> https://www.geeksforgeeks.org/print-colors-python-terminal/
+                        new_line = line.split(', ')
+                        print('─' * 40  +'\n')
+                        print(('Task: ' +'\t' + new_line[1]).expandtabs(20))
+                        print(('Assigned to: ' + '\t' + new_line[0]).expandtabs(20))
+                        print(('Date assigned: ' +'\t' + new_line[4]).expandtabs(20))
+                        print(('Due date: ' +'\t' + new_line[3]).expandtabs(20))
+                        print(('Taks Complete? ' +'\t' + new_line[5]).expandtabs(20))
+                        print(('Task description: ' +'\n' + '  ' + new_line[2]).expandtabs(5))
+                        print('─' * 40   +'\n')
+
+    elif menu == 'vs':
+        if login == 'admin':
+            print('\nStatistics:\n')
+
+            with open("tasks.txt", "r") as f:
+                tasks_num = len(f.readlines())
+                print(f'The total number of tasks is: {tasks_num}')
+
+            with open("user.txt", "r") as f:
+                users_num = len(f.readlines())
+                print(f'The total number of users is: {users_num}\n')
+
+        else:
+            print('Sorry you don\'t have the permission to access the statistics.' )
+                        
+    elif menu == 'e':
+        print('Goodbye!!!')
+        exit()
+
+    else:
+        print("You have made a wrong choice, Please Try again")
